@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 
-const port = process.env.port || 5000;
+const PORT = process.env.PORT || 5000;
 const { MONGO_URI } = require("./config/keys");
 
 mongoose
