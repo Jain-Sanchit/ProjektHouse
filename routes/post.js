@@ -8,16 +8,25 @@ const router = express.Router();
 
 router.post("/createpost", requireLogin, (req, res) => {
   const { title, description, photo } = req.body;
-  if (!title || !description || !photo) {
+  if (!title || !description) {
     return res.status(422).json({ error: "Please fill in all the fields" });
   }
   req.user.password = null;
-  const post = new Post({
-    title,
-    description,
-    photo,
-    postedBy: req.user,
-  });
+  var post;
+  if (photo) {
+    post = new Post({
+      title,
+      description,
+      photo,
+      postedBy: req.user,
+    });
+  } else {
+    post = new Post({
+      title,
+      description,
+      postedBy: req.user,
+    });
+  }
   post
     .save()
     .then((result) => {
@@ -32,6 +41,7 @@ router.get("/allpost", (req, res) => {
   Post.find()
     .populate("postedBy", "_id name pic")
     .populate("comments.postedBy", "_id name")
+    .sort("-createdAt") // - for descending order , createdAt for factor on whihc we need to sort
     .then((posts) => {
       res.json({ posts });
     })
@@ -42,8 +52,9 @@ router.get("/allpost", (req, res) => {
 
 router.get("/getSubPost", requireLogin, (req, res) => {
   Post.find({ postedBy: { $in: req.user.following } })
-    .populate("postedBy", "_id name")
+    .populate("postedBy", "_id name pic")
     .populate("comments.postedBy", "_id name")
+    .sort("-createdAt")
     .then((posts) => {
       res.json({ posts });
     })
@@ -56,6 +67,7 @@ router.get("/mypost", requireLogin, (req, res) => {
   Post.find({ postedBy: req.user._id })
     .populate("postedBy", "_id name")
     .populate("comments.postedBy", "_id name")
+    .sort("-createdAt")
     .then((myposts) => {
       res.json({ myposts });
     })
@@ -129,7 +141,6 @@ router.put("/comment", requireLogin, (req, res) => {
     });
 });
 router.delete("/deletecomment/:postId/:commentId", requireLogin, (req, res) => {
-  //console.log(req.params);
   const { postId, commentId } = req.params;
   const tmpId = mongoose.Types.ObjectId(commentId);
   Post.findByIdAndUpdate(

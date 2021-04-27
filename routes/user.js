@@ -13,6 +13,7 @@ router.get("/user/:id", requireLogin, (req, res) => {
     .then((user) => {
       Post.find({ postedBy: req.params.id })
         .populate("postedBy", "_id name")
+        .populate("comments.postedBy", "_id name")
         .exec((err, posts) => {
           if (err) {
             res.status(422).json({ error: err });
@@ -98,6 +99,29 @@ router.put("/updatepic", requireLogin, (req, res) => {
       res.json(result);
     }
   );
+});
+
+router.post("/search-users", (req, res) => {
+  let userPattern = new RegExp("^" + req.body.query);
+  User.find({ email: { $regex: userPattern } })
+    .select("_id name email pic")
+    .then((user) => {
+      res.json({ user });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+router.get("/top-creators", (req, res) => {
+  User.find()
+    .sort("-followers")
+    .then((users) => {
+      res.json({ users });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 module.exports = router;

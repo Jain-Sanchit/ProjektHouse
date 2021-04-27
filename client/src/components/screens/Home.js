@@ -4,6 +4,7 @@ import { UserContext } from "../../App";
 
 function Home() {
   const [data, setData] = useState([]);
+  const [creators, setCreators] = useState([]);
   const { state, dispatch } = useContext(UserContext);
   useEffect(() => {
     fetch("/allpost", {
@@ -15,8 +16,19 @@ function Home() {
       .then((result) => {
         setData(result.posts);
       });
+  }, [creators]);
+  useEffect(() => {
+    fetch("/top-creators", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("jwt"),
+      },
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        // console.log(result.users);
+        setCreators(result.users);
+      });
   }, []);
-
   const likePost = (id) => {
     fetch("/like", {
       method: "put",
@@ -97,7 +109,6 @@ function Home() {
     })
       .then((res) => res.json())
       .then((result) => {
-        console.log(result);
         const newData = data.filter((item) => {
           return item._id != result._id;
         });
@@ -129,9 +140,50 @@ function Home() {
   };
   return (
     <div className="home container">
+      <h4>Top Creators</h4>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        {creators.slice(0, 4).map((creator) => {
+          return (
+            <div className="row" style={{ width: "150px" }}>
+              <div className="col">
+                <div className="card" style={{ width: "200px" }}>
+                  <div className="card-image">
+                    <img
+                      src={creator.pic}
+                      style={{ height: "163px", width: "100%" }}
+                    />
+
+                    <Link
+                      to={
+                        creator._id !== state._id
+                          ? `/profile/` + creator._id
+                          : "/profile"
+                      }
+                      className="btn-floating halfway-fab waves-effect waves-light red"
+                    >
+                      <i className="material-icons">add</i>
+                    </Link>
+                  </div>
+                  <div className="card-content">
+                    <span className="card-title" style={{ color: "black" }}>
+                      {creator.name}
+                    </span>
+                    <p>{creator.email}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <h4>Feed</h4>
       {data.map((item) => {
         return (
-          <div className="card home-card" key={item._id}>
+          <div
+            className="card home-card"
+            key={item._id}
+            style={{ borderRadius: "12px " }}
+          >
             <h5 style={{ padding: "10px 15px" }}>
               <Link
                 to={
@@ -139,7 +191,9 @@ function Home() {
                     ? `/profile/` + item.postedBy._id
                     : "/profile"
                 }
-                style={{ color: "black" }}
+                style={{
+                  color: "black",
+                }}
               >
                 <img
                   src={item.postedBy.pic}
@@ -152,7 +206,6 @@ function Home() {
                     marginBottom: "-15px",
                   }}
                 />
-                {console.log(item.postedBy)}
                 {item.postedBy.name}
               </Link>{" "}
               {item.postedBy._id == state._id ? (
@@ -168,6 +221,13 @@ function Home() {
               )}
             </h5>
             <hr></hr>
+            <div style={{ paddingLeft: "25px" }}>
+              <p style={{ fontSize: "21px" }}>
+                <b>{item.title}</b>
+              </p>
+
+              <p style={{ fontSize: "18px" }}>{item.description}</p>
+            </div>
             <div className="card-image">
               <img src={item.photo} />
             </div>
@@ -197,8 +257,7 @@ function Home() {
               )}
 
               <h6>{item.likes.length} Likes</h6>
-              <h6>{item.title}</h6>
-              <p>{item.description}</p>
+
               <b>
                 <h6 style={{ fontWeight: "900" }}>
                   <u>Comments</u>
@@ -212,7 +271,6 @@ function Home() {
                     </span>
                     {" : "}
                     {comment.text}
-                    {console.log(item)}
                     {(item.postedBy._id == state._id ||
                       comment.postedBy._id == state._id) && (
                       <i

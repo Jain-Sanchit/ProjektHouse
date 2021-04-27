@@ -1,4 +1,3 @@
-import Axios from "axios";
 import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import M from "materialize-css";
@@ -11,52 +10,53 @@ function CreatePost() {
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-    if (url) {
-      fetch("/createpost", {
-        method: "post",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("jwt"),
-        },
-        body: JSON.stringify({
-          title,
-          description,
-          photo: url,
-        }),
+    fetch("/createpost", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("jwt"),
+      },
+      body: JSON.stringify({
+        title,
+        description,
+        photo: url,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          M.toast({ html: data.error, classes: "#c62828 red darken-3" });
+        } else {
+          M.toast({ html: "Post Created Successfully", classes: " green" });
+          history.push("/");
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.error) {
-            M.toast({ html: data.error, classes: "#c62828 red darken-3" });
-          } else {
-            M.toast({ html: "Post Created Successfully", classes: " green" });
-            history.push("/");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+      .catch((err) => {
+        console.log(err);
+      });
   }, [url]);
 
   const PostDetails = (e) => {
     e.preventDefault();
-    const data = new FormData();
-    data.append("file", image);
-    data.append("upload_preset", "projekthouse");
-    data.append("cloud_name", "jainsanchit");
-    fetch("https://api.cloudinary.com/v1_1/jainsanchit/image/upload", {
-      method: "POST",
-      body: data,
-    })
-      .then((response) => response.json()) // keep it in one line else use return res.json()
-      .then((data) => {
-        // console.log(data);
-        setUrl(data.url);
+    if (image) {
+      const data = new FormData();
+      data.append("file", image);
+      data.append("upload_preset", "projekthouse");
+      data.append("cloud_name", "jainsanchit");
+      fetch("https://api.cloudinary.com/v1_1/jainsanchit/image/upload", {
+        method: "POST",
+        body: data,
       })
-      .catch((err) => {
-        console.log(err.response);
-      });
+        .then((response) => response.json()) // keep it in one line else use return res.json()
+        .then((data) => {
+          setUrl(data.url);
+        })
+        .catch((err) => {
+          console.log(err.response);
+        });
+    } else {
+      setUrl(null);
+    }
   };
 
   return (

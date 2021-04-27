@@ -97,7 +97,6 @@ function SubsPosts() {
     })
       .then((res) => res.json())
       .then((result) => {
-        console.log(result);
         const newData = data.filter((item) => {
           return item._id != result._id;
         });
@@ -141,6 +140,17 @@ function SubsPosts() {
                 }
                 style={{ color: "black" }}
               >
+                <img
+                  src={item.postedBy.pic}
+                  style={{
+                    height: "40px",
+                    width: "40px",
+                    borderRadius: "50%",
+                    marginRight: "10px",
+                    padding: "0",
+                    marginBottom: "-15px",
+                  }}
+                />
                 {item.postedBy.name}
               </Link>{" "}
               {item.postedBy._id == state._id ? (
@@ -200,7 +210,6 @@ function SubsPosts() {
                     </span>
                     {" : "}
                     {comment.text}
-                    {console.log(item)}
                     {(item.postedBy._id == state._id ||
                       comment.postedBy._id == state._id) && (
                       <i

@@ -26,7 +26,6 @@ function Register() {
     })
       .then((response) => response.json()) // keep it in one line else use return res.json()
       .then((data) => {
-        // console.log(data);
         setUrl(data.url);
       })
       .catch((err) => {

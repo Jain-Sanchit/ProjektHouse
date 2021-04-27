@@ -13,8 +13,8 @@ const postSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    required: true,
-  },
+    default:null,
+    },
   likes: [{ type: ObjectId, ref: "User" }],
   comments: [
     {
@@ -26,6 +26,6 @@ const postSchema = new mongoose.Schema({
     type: ObjectId,
     ref: "User", // relation building in mongodb
   },
-});
+},{timestamps:true});
 
 mongoose.model("Post", postSchema);
