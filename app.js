@@ -26,14 +26,16 @@ app.use(require("./routes/auth"));
 app.use(require("./routes/post"));
 app.use(require("./routes/user"));
 
-if (process.env.NODE_ENV == "production") {
-  //for heroku deployment
-  app.use(express.static("client/build"));
-  const path = require("path");
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
-  });
-}
+// if (process.env.NODE_ENV == "production") {
+//   //for heroku deployment
+//   app.use(express.static("client/build"));
+//   const path = require("path");
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+//   });
+// }
+// ,
+//     "heroku-postbuild":"NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
 
 app.listen(PORT, () => {
   console.log(`Server Running on ${PORT}`);

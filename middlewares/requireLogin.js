@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
   if (!authorization) {
     return res.status(401).json({ error: "You must be logged in" });
   }
-  const token = authorization.replace("Bearer ", ""); //since auth = Bearer token, so extracting token from it
+  const token = authorization.replace("Bearer ", ""); //since auth = "Bearer token", so extracting token from it
   jwt.verify(token, JWT_SECRET, (err, payload) => {
     if (err) {
       return res.status(401).json({ error: "You must be logged in" });
